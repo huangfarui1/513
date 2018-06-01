@@ -1,0 +1,178 @@
+
+
+为了能够继续考试，您必须首先完成下述任务。
+
+将系统的 root 账号密码设置为 redhat 。
+
+开机按E
+在linux16这一行添加：rd.break  console=tty0
+按Ctrl+x就可以用新的参数进入sysroot目录下进行操作了。
+
+switch_root:/# mount -o remount,rw /sysroot
+switch_root:/# 
+sh-4.2# echo redhat | passwd --stdin root
+sh-4.2# touch /.autorelabel
+sh-4.2# exit
+switch_root:/# reboot
+
+配置您的虚拟机系统使用下述静态网络配置：
+ * Hostname：server0.example.com
+ * IP address：172.25.0.11
+ * Netmask：255.255.255.0
+ * Gateway：172.25.0.254
+ * Name server：172.25.254.254 
+
+[root@server0 ~]# echo server0.example.com > /etc/hostname
+[root@server0 ~]# nmcli connection modify "System eth0" ipv4.method manual ipv4.addresses "172.25.0.11/24 172.25.0.254" ipv4.dns 172.25.254.254 connection.autoconnect yes
+
+
+
+
+
+您在考试中使用的Red Hat Enterprise Linux操作系统版本对应的分发包可以通过YUM在下面的链接中找到：http://content.example.com/rhel7.0/x86_64/dvd
+
+为您的系统指定一个默认的软件仓库
+
+YUM的软件库源为 http://content.example.com/rhel7.0/x86_64/dvd，将此配置为您的系统的默认软件仓库。
+
+方案一
+[root@server0 ~]# vim /etc/yum.repos.d/rhel7.repo
+
+[rhel7]
+name=rhel7
+baseual=http://content.example.com/rhel7.0/x86_64/dvd
+enabled=1
+gpgcheck=0
+
+[root@serverX ~]# yum repolist
+
+方案二
+[root@server0 ~]# yum-config-manager --add http://content.example.com/rhel7.0/x86_64/dvd
+[root@server0 ~]# vim /etc/yum.repos.d/content.example.com_rhel7.0_x86_64_dvd.repo
+.. ..
+gpgcheck=0				//不检查软件签名
+
+[root@serverX ~]# yum repolist
+
+
+
+
+
+附录 1:分区及逻辑卷准备(练习)
+[root@server0 ~]# fdisk /dev/vdb
+
+命令(输入 m 获取帮助)：n
+Partition type:
+   p   primary (0 primary, 0 extended, 4 free)
+   e   extended
+Select (default p): 
+Using default response p
+分区号 (1-4，默认 1)：
+起始 扇区 (2048-20971519，默认为 2048)：
+将使用默认值 2048
+Last 扇区, +扇区 or +size{K,M,G} (2048-20971519，默认为 20971519)：+200M
+分区 1 已设置为 Linux 类型，大小设为 200 MiB
+
+命令(输入 m 获取帮助)：N
+Partition type:
+   p   primary (1 primary, 0 extended, 3 free)
+   e   extended
+Select (default p): 
+Using default response p
+分区号 (2-4，默认 2)：
+起始 扇区 (411648-20971519，默认为 411648)：
+将使用默认值 411648
+Last 扇区, +扇区 or +size{K,M,G} (411648-20971519，默认为 20971519)：+2000M
+分区 2 已设置为 Linux 类型，大小设为 2 GiB
+
+命令(输入 m 获取帮助)：N
+Partition type:
+   p   primary (2 primary, 0 extended, 2 free)
+   e   extended
+Select (default p): 
+Using default response p
+分区号 (3,4，默认 3)：
+起始 扇区 (4507648-20971519，默认为 4507648)：
+将使用默认值 4507648
+Last 扇区, +扇区 or +size{K,M,G} (4507648-20971519，默认为 20971519)：+1000M
+分区 3 已设置为 Linux 类型，大小设为 1000 MiB
+
+命令(输入 m 获取帮助)：N
+Partition type:
+   p   primary (3 primary, 0 extended, 1 free)
+   e   extended
+Select (default e): 
+Using default response e
+已选择分区 4
+起始 扇区 (6555648-20971519，默认为 6555648)：
+将使用默认值 6555648
+Last 扇区, +扇区 or +size{K,M,G} (6555648-20971519，默认为 20971519)           
+将使用默认值 20971519
+分区 4 已设置为 Extended 类型，大小设为 6.9 GiB
+
+命令(输入 m 获取帮助)：N
+All primary partitions are in use
+添加逻辑分区 5
+起始 扇区 (6557696-20971519，默认为 6557696)：
+将使用默认值 6557696
+Last 扇区, +扇区 or +size{K,M,G} (6557696-20971519，默认为 20971519)：+500M
+分区 5 已设置为 Linux 类型，大小设为 500 MiB
+
+命令(输入 m 获取帮助)：N
+All primary partitions are in use
+添加逻辑分区 6
+起始 扇区 (7583744-20971519，默认为 7583744)：
+将使用默认值 7583744
+Last 扇区, +扇区 or +size{K,M,G} (7583744-20971519，默认为 20971519)：+2000M
+分区 6 已设置为 Linux 类型，大小设为 2 GiB
+
+命令(输入 m 获取帮助)：N
+All primary partitions are in use
+添加逻辑分区 7
+起始 扇区 (11681792-20971519，默认为 11681792)：
+将使用默认值 11681792
+Last 扇区, +扇区 or +size{K,M,G} (11681792-20971519，默认为 20971519)：+512M
+分区 7 已设置为 Linux 类型，大小设为 512 MiB
+
+命令(输入 m 获取帮助)：P
+
+磁盘 /dev/vdb：10.7 GB, 10737418240 字节，20971520 个扇区
+Units = 扇区 of 1 * 512 = 512 bytes
+扇区大小(逻辑/物理)：512 字节 / 512 字节
+I/O 大小(最小/最佳)：512 字节 / 512 字节
+磁盘标签类型：dos
+磁盘标识符：0x0a0c7414
+
+   设备 Boot      Start         End      Blocks   Id  System
+/dev/vdb1            2048      411647      204800   83  Linux
+/dev/vdb2          411648     4507647     2048000   83  Linux
+/dev/vdb3         4507648     6555647     1024000   83  Linux
+/dev/vdb4         6555648    20971519     7207936    5  Extended
+/dev/vdb5         6557696     7581695      512000   83  Linux
+/dev/vdb6         7583744    11679743     2048000   83  Linux
+/dev/vdb7        11681792    12730367      524288   83  Linux
+
+命令(输入 m 获取帮助)：W
+
+[root@server0 ~]# lsblk					//查看分区
+NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+vda    253:0    0   10G  0 disk 
+└─vda1 253:1    0   10G  0 part /
+vdb    253:16   0   10G  0 disk 
+├─vdb1 253:17   0  200M  0 part 
+├─vdb2 253:18   0    2G  0 part 
+├─vdb3 253:19   0 1000M  0 part 
+├─vdb4 253:20   0    1K  0 part 
+├─vdb5 253:21   0  500M  0 part 
+├─vdb6 253:22   0    2G  0 part 
+└─vdb7 253:23   0  512M  0 part 
+
+
+
+
+
+
+
+
+
+
